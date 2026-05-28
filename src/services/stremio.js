@@ -5,7 +5,10 @@ import http from "http";
 import url from "url";
 
 const CONFIG = {
-  PORT: process.env.PORT || 7000,
+  PORT: process.env.PORTA || 8080,
+  PUBLIC_URL: (
+    process.env.PUBLIC_URL || `http://127.0.0.1:${process.env.PORTA || 8080}`
+  ).replace(/\/$/, ""),
   GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   GEMINI_MODEL: "gemini-2.5-flash",
   TARGET_LANG: "Português Brasileiro",
@@ -236,7 +239,7 @@ function montarResultado(subtitles) {
     result.push({
       id: `en-${index}`,
       lang: `🇺🇸 EN ${index + 1}`,
-      url: `http://127.0.0.1:${CONFIG.PORT}/english/${payload}.srt`,
+      url: `${CONFIG.PUBLIC_URL}/english/${payload}.srt`,
       label: sub.label || sub.filename || "English",
     });
 
@@ -250,7 +253,7 @@ function montarResultado(subtitles) {
     result.push({
       id: `pt-${index}`,
       lang: `🤖 PT ${index + 1}`,
-      url: `http://127.0.0.1:${CONFIG.PORT}/translate/${payloadPT}.srt`,
+      url: `${CONFIG.PUBLIC_URL}/translate/${payloadPT}.srt`,
       label: sub.label || sub.filename || "AI Translation",
     });
   });
@@ -292,7 +295,10 @@ const addonInterface = builder.getInterface();
 export function createServer() {
   return http.createServer(async (req, res) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept",
+    );
 
     if (req.method === "OPTIONS") {
       res.writeHead(204);
