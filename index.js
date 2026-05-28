@@ -8,13 +8,7 @@ async function start() {
   await connectDB();
 
   server.listen(CONFIG.PORT, () => {
-    console.log(`
-    ╔════════════════════════════════════╗
-    ║      AI SUBTITLES ONLINE          ║
-    ╚════════════════════════════════════╝
- 
-    http://127.0.0.1:${CONFIG.PORT}/manifest.json
-    `);
+    console.log("Servidor rodando na porta", CONFIG.PORT);
   });
 }
 

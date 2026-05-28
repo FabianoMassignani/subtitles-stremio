@@ -1,5 +1,5 @@
 import pkg from "stremio-addon-sdk";
-const { addonBuilder, serveHTTP } = pkg;
+const { addonBuilder } = pkg;
 import fetch from "node-fetch";
 import http from "http";
 import url from "url";
@@ -314,30 +314,30 @@ export function createServer() {
 
       res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
       return res.end(`<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Translate Subtitles</title>
-  <style>
-    body { font-family: sans-serif; max-width: 600px; margin: 60px auto; text-align: center; background: #1a1a2e; color: #eee; }
-    h1 { font-size: 2rem; margin-bottom: 8px; }
-    p { color: #aaa; margin-bottom: 32px; }
-    .btn { display: inline-block; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-size: 1rem; font-weight: bold; margin: 8px; }
-    .btn-install { background: #7b2d8b; color: #fff; }
-    .btn-manifest { background: #2d3561; color: #fff; }
-    .btn:hover { opacity: 0.85; }
-    code { background: #2a2a40; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
-  </style>
-</head>
-<body>
-  <h1>🤖 AI Translate Subtitles</h1>
-  <p>Addon para Stremio que traduz legendas em inglês para Português Brasileiro usando IA.</p>
-  <a class="btn btn-install" href="${installUrl}">Instalar no Stremio</a>
-  <a class="btn btn-manifest" href="${manifestUrl}" target="_blank">Ver Manifest</a>
-  <p style="margin-top:32px"><code>${manifestUrl}</code></p>
-</body>
-</html>`);
+            <html lang="pt-BR">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>AI Translate Subtitles</title>
+              <style>
+                body { font-family: sans-serif; max-width: 600px; margin: 60px auto; text-align: center; background: #1a1a2e; color: #eee; }
+                h1 { font-size: 2rem; margin-bottom: 8px; }
+                p { color: #aaa; margin-bottom: 32px; }
+                .btn { display: inline-block; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-size: 1rem; font-weight: bold; margin: 8px; }
+                .btn-install { background: #7b2d8b; color: #fff; }
+                .btn-manifest { background: #2d3561; color: #fff; }
+                .btn:hover { opacity: 0.85; }
+                code { background: #2a2a40; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; }
+              </style>
+            </head>
+            <body>
+              <h1>🤖 AI Translate Subtitles</h1>
+              <p>Addon para Stremio que traduz legendas em inglês para Português Brasileiro usando IA.</p>
+              <a class="btn btn-install" href="${installUrl}">Instalar no Stremio</a>
+              <a class="btn btn-manifest" href="${manifestUrl}" target="_blank">Ver Manifest</a>
+              <p style="margin-top:32px"><code>${manifestUrl}</code></p>
+            </body>
+            </html>`);
     }
 
     if (pathname.startsWith("/english/")) {
@@ -397,7 +397,36 @@ export function createServer() {
       }
     }
 
-    serveHTTP(addonInterface, req, res);
+    // Manifest
+    if (pathname === "/manifest.json") {
+      res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+      return res.end(JSON.stringify(addonInterface.manifest));
+    }
+
+    // Stremio resource: /subtitles/:type/:id.json ou /subtitles/:type/:id/:extra.json
+    const resourceMatch = pathname.match(
+      /^\/([^/]+)\/([^/]+)\/([^/]+?)(?:\/([^/]+))?\.json$/,
+    );
+    if (resourceMatch) {
+      const [, resource, type, id, extraEncoded] = resourceMatch;
+      const extra = extraEncoded
+        ? JSON.parse(decodeURIComponent(extraEncoded))
+        : {};
+      try {
+        const result = await addonInterface.get(resource, type, id, extra);
+        res.writeHead(200, {
+          "Content-Type": "application/json; charset=utf-8",
+        });
+        return res.end(JSON.stringify(result));
+      } catch (err) {
+        console.error("[RESOURCE ERROR]", err.message);
+        res.writeHead(500);
+        return res.end(JSON.stringify({ error: err.message }));
+      }
+    }
+
+    res.writeHead(404);
+    res.end("Not found");
   });
 }
 
