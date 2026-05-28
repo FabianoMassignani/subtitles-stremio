@@ -400,29 +400,8 @@ export function createServer() {
     // Manifest
     if (pathname === "/manifest.json") {
       res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
-      return res.end(JSON.stringify(addonInterface.manifest));
-    }
 
-    // Stremio resource: /subtitles/:type/:id.json ou /subtitles/:type/:id/:extra.json
-    const resourceMatch = pathname.match(
-      /^\/([^/]+)\/([^/]+)\/([^/]+?)(?:\/([^/]+))?\.json$/,
-    );
-    if (resourceMatch) {
-      const [, resource, type, id, extraEncoded] = resourceMatch;
-      const extra = extraEncoded
-        ? JSON.parse(decodeURIComponent(extraEncoded))
-        : {};
-      try {
-        const result = await addonInterface.get(resource, type, id, extra);
-        res.writeHead(200, {
-          "Content-Type": "application/json; charset=utf-8",
-        });
-        return res.end(JSON.stringify(result));
-      } catch (err) {
-        console.error("[RESOURCE ERROR]", err.message);
-        res.writeHead(500);
-        return res.end(JSON.stringify({ error: err.message }));
-      }
+      return res.end(JSON.stringify(addonInterface.manifest));
     }
 
     res.writeHead(404);
