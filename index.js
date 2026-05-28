@@ -12,8 +12,7 @@ async function start() {
     ╔════════════════════════════════════╗
     ║      AI SUBTITLES ONLINE          ║
     ╚════════════════════════════════════╝
-
-    Manifest:
+ 
     http://127.0.0.1:${CONFIG.PORT}/manifest.json
     `);
   });
