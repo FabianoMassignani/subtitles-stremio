@@ -291,6 +291,14 @@ const addonInterface = builder.getInterface();
 
 export function createServer() {
   return http.createServer(async (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+
+    if (req.method === "OPTIONS") {
+      res.writeHead(204);
+      return res.end();
+    }
+
     const parsed = url.parse(req.url);
     const pathname = parsed.pathname;
 
