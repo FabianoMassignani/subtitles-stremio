@@ -5,9 +5,9 @@ import http from "http";
 import url from "url";
 
 const CONFIG = {
-  PORT: process.env.PORTA || 8080,
+  PORT: process.env.PORT || 8080,
   PUBLIC_URL: (
-    process.env.PUBLIC_URL || `http://127.0.0.1:${process.env.PORTA || 8080}`
+    process.env.PUBLIC_URL || `http://127.0.0.1:${process.env.PORT || 8080}`
   ).replace(/\/$/, ""),
   GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   GEMINI_MODEL: "gemini-2.5-flash",
